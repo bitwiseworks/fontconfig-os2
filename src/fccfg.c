@@ -1923,7 +1923,7 @@ FcConfigFileExists (const FcChar8 *dir, const FcChar8 *file)
 
     strcpy ((char *) path, (const char *) dir);
     /* make sure there's a single separator */
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__)
     if ((!path[0] || (path[strlen((char *) path)-1] != '/' &&
 		      path[strlen((char *) path)-1] != '\\')) &&
 	!(file[0] == '/' ||
@@ -2148,7 +2148,7 @@ FcConfigFilename (const FcChar8 *url)
     }
     file = 0;
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__)
     if (isalpha (*url) &&
 	url[1] == ':' &&
 	(url[2] == '/' || url[2] == '\\'))
@@ -2163,7 +2163,7 @@ FcConfigFilename (const FcChar8 *url)
 	else
 	    file = 0;
 	break;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__)
     case '\\':
     absolute_path:
 #endif

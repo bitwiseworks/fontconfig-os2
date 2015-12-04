@@ -64,6 +64,10 @@ extern pfnSHGetFolderPathA pSHGetFolderPathA;
 #  define FC_SEARCH_PATH_SEPARATOR ';'
 #  define FC_DIR_SEPARATOR         '\\'
 #  define FC_DIR_SEPARATOR_S       "\\"
+#elif defined(__OS2__)
+#  define FC_SEARCH_PATH_SEPARATOR ';'
+#  define FC_DIR_SEPARATOR         '/'
+#  define FC_DIR_SEPARATOR_S       "/"
 #else
 #  define FC_SEARCH_PATH_SEPARATOR ':'
 #  define FC_DIR_SEPARATOR         '/'
@@ -449,7 +453,11 @@ typedef struct _FcCaseFold {
     short    	offset;	    /* lower - upper for RANGE, table id for FULL */
 } FcCaseFold;
 
+#ifdef __OS2__
+#define FC_MAX_FILE_LEN	    260
+#else
 #define FC_MAX_FILE_LEN	    4096
+#endif
 
 #define FC_CACHE_MAGIC_MMAP	    0xFC02FC04
 #define FC_CACHE_MAGIC_ALLOC	    0xFC02FC05

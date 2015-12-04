@@ -962,7 +962,7 @@ FcStrLastSlash (const FcChar8  *path)
     FcChar8	    *slash;
 
     slash = (FcChar8 *) strrchr ((const char *) path, '/');
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__)
     {
         FcChar8     *backslash;
 
@@ -1017,7 +1017,7 @@ FcStrCanonAbsoluteFilename (const FcChar8 *s)
 	return NULL;
     slash = NULL;
     f = file;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__)
     if (*s == '/' && *(s+1) == '/') /* Network path, do not squash // */
 	*f++ = *s++;
 #endif
@@ -1056,7 +1056,7 @@ FcStrCanonAbsoluteFilename (const FcChar8 *s)
     return file;
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__)
 /*
  * Convert '\\' to '/' , remove double '/'
  */
@@ -1104,6 +1104,14 @@ FcStrCanonFilename (const FcChar8 *s)
 
     if (size == 0)
 	perror ("GetFullPathName");
+
+    FcConvertDosPath ((char *) full);
+    return FcStrCanonAbsoluteFilename (full);
+#elif defined(__OS2__)
+    FcChar8 full[FC_MAX_FILE_LEN + 2];
+    int rc = _abspath ((char *) full, (const char *) s, FC_MAX_FILE_LEN + 2);
+    if (rc != 0)
+	perror ("_abspath");
 
     FcConvertDosPath ((char *) full);
     return FcStrCanonAbsoluteFilename (full);

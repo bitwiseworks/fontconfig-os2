@@ -194,7 +194,7 @@ FcAtomicOrigFile (FcAtomic *atomic)
 FcBool
 FcAtomicReplaceOrig (FcAtomic *atomic)
 {
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__)
     unlink ((const char *) atomic->file);
 #endif
     if (rename ((char *) atomic->new, (char *) atomic->file) < 0)
