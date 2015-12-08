@@ -41,6 +41,12 @@ uninstall-libtool-import-lib:
 
 else
 
+if OS_OS2
+
+short_name = -shortname fntcnf
+
+endif
+
 install-libtool-import-lib:
 uninstall-libtool-import-lib:
 
@@ -163,7 +169,7 @@ libfontconfig_la_SOURCES = \
 lib_LTLIBRARIES = libfontconfig.la
 
 libfontconfig_la_LDFLAGS =			\
-	-version-info @LIBT_VERSION_INFO@ -no-undefined $(export_symbols)
+	-version-info @LIBT_VERSION_INFO@ -no-undefined $(export_symbols) $(short_name)
 
 libfontconfig_la_LIBADD = $(ICONV_LIBS) $(FREETYPE_LIBS) $(LIBXML2_LIBS) $(EXPAT_LIBS)
 
