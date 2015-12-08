@@ -33,6 +33,12 @@
 #define R_OK 4
 #endif
 
+#if defined(__OS2__)
+#define OS2EMX_PLAIN_CHAR
+#define INCL_PM
+#include <os2.h>
+#endif
+
 static FcConfig    *_fcConfig; /* MT-safe */
 
 static FcConfig *
@@ -125,6 +131,15 @@ FcConfigCreate (void)
     config->expr_pool = NULL;
 
     config->sysRoot = NULL;
+
+#ifdef __OS2__
+    config->os2UserIni = NULL;
+
+    char buf1 [CCHMAXPATH + 1], buf2 [CCHMAXPATH + 1];
+    PRFPROFILE p = { sizeof(buf1), buf1, sizeof(buf2), buf2 };
+    if (PrfQueryProfile (NULLHANDLE, &p))
+	config->os2UserIni = FcStrCanonFilename ((FcChar8 *)p.pszUserName);
+#endif
 
     FcRefInit (&config->ref, 1);
 
@@ -295,6 +310,9 @@ FcConfigDestroy (FcConfig *config)
     }
     if (config->sysRoot)
 	FcStrFree (config->sysRoot);
+
+    if (config->os2UserIni)
+	FcStrFree (config->os2UserIni);
 
     free (config);
 }

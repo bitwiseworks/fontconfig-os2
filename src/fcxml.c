@@ -2134,6 +2134,15 @@ FcParseDir (FcConfigParse *parse)
 	strcat ((char *) data, "fonts");
     }
 #endif
+#ifdef __OS2__
+    if (strcmp ((const char *) data, "OS2FONTDIR") == 0)
+    {
+        /* Special case: OS2.INI file */
+        if (!parse->config->os2UserIni)
+            goto bail;
+        data = parse->config->os2UserIni;
+    }
+#endif
     if (strlen ((char *) data) == 0)
 	FcConfigMessage (parse, FcSevereWarning, "empty font directory name ignored");
     else if (!FcStrUsesHome (data) || FcConfigHome ())

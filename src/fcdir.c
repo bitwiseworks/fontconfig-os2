@@ -25,6 +25,12 @@
 #include "fcint.h"
 #include <dirent.h>
 
+#if defined(__OS2__)
+#define OS2EMX_PLAIN_CHAR
+#define INCL_PM
+#include <os2.h>
+#endif
+
 FcBool
 FcFileIsDir (const FcChar8 *file)
 {
@@ -208,7 +214,7 @@ FcDirScanConfig (FcFontSet	*set,
 		 FcConfig	*config,
 		 FcBool		scanOnly)
 {
-    DIR			*d;
+    DIR			*d = NULL;
     struct dirent	*e;
     FcStrSet		*files;
     FcChar8		*file;
@@ -238,32 +244,87 @@ FcDirScanConfig (FcFontSet	*set,
 
     if (FcDebug () & FC_DBG_SCAN)
 	printf ("\tScanning dir %s\n", dir);
-	
-    d = opendir ((char *) dir);
-    if (!d)
-    {
-	/* Don't complain about missing directories */
-	if (errno != ENOENT)
-	    ret = FcFalse;
-	goto bail;
-    }
 
-    files = FcStrSetCreate ();
-    if (!files)
+#ifdef __OS2__
+    if (config && FcStrCmp (dir, config->os2UserIni) == 0)
     {
-	ret = FcFalse;
-	goto bail1;
+        /* Special case: OS2.INI file, read PM_Fonts entries */
+        ULONG size;
+        char *buf;
+
+        if (!PrfQueryProfileSize (HINI_USERPROFILE, "PM_Fonts", NULL, &size) ||
+            !(buf = malloc (size)))
+        {
+            ret = FcFalse;
+            goto bail;
+        }
+
+        files = FcStrSetCreate ();
+        if (!files)
+        {
+            free (buf);
+            ret = FcFalse;
+            goto bail;
+        }
+
+        if (PrfQueryProfileString (HINI_USERPROFILE, "PM_Fonts", NULL, NULL, buf, size) > 0)
+        {
+            char *key = buf;
+            char font [CCHMAXPATH];
+
+            while (*key)
+            {
+                if (PrfQueryProfileString (HINI_USERPROFILE, "PM_Fonts", key, NULL, font, CCHMAXPATH) > 0)
+                {
+                    FcBool ok = FcFalse;
+                    FcChar8 *f = FcStrCanonFilename ((FcChar8 *)font);
+                    if (f)
+                    {
+                        ok = FcStrSetAdd (files, f);
+                        FcStrFree (f);
+                    }
+                    if (!ok)
+                    {
+                        free (buf);
+                        ret = FcFalse;
+                        goto bail2;
+                    }
+                }
+                key += strlen (key) + 1;
+            }
+        }
+
+        free (buf);
     }
-    while ((e = readdir (d)))
+    else
+#endif
     {
-	if (e->d_name[0] != '.' && strlen (e->d_name) < FC_MAX_FILE_LEN)
-	{
-	    strcpy ((char *) base, (char *) e->d_name);
-	    if (!FcStrSetAdd (files, file)) {
-		ret = FcFalse;
-		goto bail2;
-	    }
-	}
+        d = opendir ((char *) dir);
+        if (!d)
+        {
+            /* Don't complain about missing directories */
+            if (errno != ENOENT)
+                ret = FcFalse;
+            goto bail;
+        }
+
+        files = FcStrSetCreate ();
+        if (!files)
+        {
+            ret = FcFalse;
+            goto bail1;
+        }
+        while ((e = readdir (d)))
+        {
+            if (e->d_name[0] != '.' && strlen (e->d_name) < FC_MAX_FILE_LEN)
+            {
+                strcpy ((char *) base, (char *) e->d_name);
+                if (!FcStrSetAdd (files, file)) {
+                    ret = FcFalse;
+                    goto bail2;
+                }
+            }
+        }
     }
 
     /*
@@ -290,7 +351,8 @@ FcDirScanConfig (FcFontSet	*set,
 bail2:
     FcStrSetDestroy (files);
 bail1:
-    closedir (d);
+    if (d)
+	closedir (d);
 bail:
     if (file)
 	free (file);

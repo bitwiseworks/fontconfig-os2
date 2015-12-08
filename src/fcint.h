@@ -539,6 +539,10 @@ struct _FcConfig {
     FcExprPage  *expr_pool;	    /* pool of FcExpr's */
 
     FcChar8     *sysRoot;	    /* override the system root directory */
+
+#ifdef __OS2__
+    FcChar8     *os2UserIni;  /* OS/2 PM OS2.INI full file path */
+#endif
 };
 
 typedef struct _FcFileTime {

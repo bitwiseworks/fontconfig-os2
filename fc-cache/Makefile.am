@@ -36,7 +36,7 @@ uninstall-local:
 	-$(RM) -rf "$(DESTDIR)$(fc_cachedir)"
 endif
 
-AM_CPPFLAGS=-I${top_srcdir} -I${top_srcdir}/src $(WARN_CFLAGS)
+AM_CPPFLAGS=-I${top_srcdir} -I${top_srcdir}/src -I${top_builddir}/src $(WARN_CFLAGS)
 
 bin_PROGRAMS=fc-cache
 

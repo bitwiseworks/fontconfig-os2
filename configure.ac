@@ -104,6 +104,15 @@ if test "$os_win32" = "yes"; then
 fi
 AM_CONDITIONAL(MS_LIB_AVAILABLE, test x$ms_librarian = xyes)
 
+case "$host" in
+  *os2*)
+    os_os2=yes
+    ;;
+  *)
+    os_os2=no
+esac
+AM_CONDITIONAL(OS_OS2, test "$os_os2" = "yes")
+
 AC_CHECK_DECL([__SUNPRO_C], [SUNCC="yes"], [SUNCC="no"])
 WARN_CFLAGS=""
 WARNING_CPP_DIRECTIVE="no"
@@ -416,6 +425,10 @@ yes)
 		FC_DEFAULT_FONTS="WINDOWSFONTDIR"
 		AC_DEFINE_UNQUOTED(FC_DEFAULT_FONTS, "WINDOWSFONTDIR", 
 				   [Windows font directory])
+  elif test "$os_os2" = "yes"; then
+    FC_DEFAULT_FONTS="OS2FONTDIR"
+    AC_DEFINE_UNQUOTED(FC_DEFAULT_FONTS, "OS2FONTDIR",
+           [OS/2 font directory])
 	else
 		FC_DEFAULT_FONTS="/usr/share/fonts"
 		AC_DEFINE_UNQUOTED(FC_DEFAULT_FONTS, "/usr/share/fonts", 

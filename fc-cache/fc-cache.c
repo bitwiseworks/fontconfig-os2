@@ -49,6 +49,10 @@
 #undef STRICT
 #endif
 
+#ifdef __OS2__
+#include "fcint.h"
+#endif
+
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
@@ -176,8 +180,14 @@ scanDirs (FcStrList *list, FcConfig *config, FcBool force, FcBool really_force, 
 
 	if (!S_ISDIR (statb.st_mode))
 	{
-	    fprintf (stderr, "\"%s\": not a directory, skipping\n", dir);
-	    continue;
+#ifdef __OS2__
+	    /* Special case: OS2.INI file, let it go */
+	    if (!config || FcStrCmp (dir, config->os2UserIni) != 0)
+#endif
+	    {
+		fprintf (stderr, "\"%s\": not a directory, skipping\n", dir);
+		continue;
+	    }
 	}
 	was_processed = FcTrue;
 
