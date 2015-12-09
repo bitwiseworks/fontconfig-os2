@@ -27,7 +27,7 @@ FC_CAT_SRC=${top_srcdir}/fc-cat
 
 SGML = ${FC_CAT_SRC}/fc-cat.sgml
 
-AM_CPPFLAGS=-I${top_srcdir} $(WARN_CFLAGS)
+AM_CPPFLAGS=-I${top_srcdir} -I${top_srcdir}/src -I${top_builddir}/src $(WARN_CFLAGS)
 
 bin_PROGRAMS=fc-cat
 
