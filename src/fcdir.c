@@ -246,7 +246,7 @@ FcDirScanConfig (FcFontSet	*set,
 	printf ("\tScanning dir %s\n", dir);
 
 #ifdef __OS2__
-    if (config && FcStrCmp (dir, config->os2UserIni) == 0)
+    if (FcOs2IniPath && FcStrCmpIgnoreCase (dir, FcOs2IniPath) == 0)
     {
         /* Special case: OS2.INI file, read PM_Fonts entries */
         ULONG size;

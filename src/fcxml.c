@@ -57,6 +57,12 @@
 extern FcChar8 fontconfig_instprefix[];
 #endif
 
+#if defined(__OS2__)
+#define OS2EMX_PLAIN_CHAR
+#define INCL_PM
+#include <os2.h>
+#endif
+
 static FcChar8  *__fc_userdir = NULL;
 static FcChar8  *__fc_userconf = NULL;
 
@@ -2138,9 +2144,9 @@ FcParseDir (FcConfigParse *parse)
     if (strcmp ((const char *) data, "OS2FONTDIR") == 0)
     {
         /* Special case: OS2.INI file */
-        if (!parse->config->os2UserIni)
+        if (!FcOs2IniPath)
             goto bail;
-        data = parse->config->os2UserIni;
+        data = FcOs2IniPath;
     }
 #endif
     if (strlen ((char *) data) == 0)
@@ -3214,6 +3220,11 @@ pfnGetSystemWindowsDirectory pGetSystemWindowsDirectory = NULL;
 pfnSHGetFolderPathA pSHGetFolderPathA = NULL;
 #endif
 
+#ifdef __OS2__
+/* OS/2 PM OS2.INI full file path */
+const FcChar8 *FcOs2IniPath = NULL;
+#endif
+
 FcBool
 FcConfigParseAndLoad (FcConfig	    *config,
 		      const FcChar8 *name,
@@ -3248,6 +3259,23 @@ FcConfigParseAndLoad (FcConfig	    *config,
         /* the check is done later, because there is no provided fallback */
         if (hSh)
             pSHGetFolderPathA = (pfnSHGetFolderPathA) GetProcAddress(hSh, "SHGetFolderPathA");
+    }
+#endif
+
+#ifdef __OS2__
+    if (!FcOs2IniPath)
+    {
+        static char os2Ini [CCHMAXPATH + 1];
+        char os2SysIni [CCHMAXPATH + 1];
+
+        PRFPROFILE p = { sizeof (os2Ini), os2Ini, sizeof (os2SysIni), os2SysIni };
+        if (PrfQueryProfile (NULLHANDLE, &p))
+        {
+            FcChar8 *path = FcStrCanonFilename ((FcChar8 *) os2Ini);
+            strcpy (os2Ini, (char *) path);
+            FcFree (path);
+            FcOs2IniPath = (FcChar8 *) os2Ini; /* static */
+        }
     }
 #endif
 

@@ -65,6 +65,7 @@ extern pfnSHGetFolderPathA pSHGetFolderPathA;
 #  define FC_DIR_SEPARATOR         '\\'
 #  define FC_DIR_SEPARATOR_S       "\\"
 #elif defined(__OS2__)
+extern const FcChar8 *FcOs2IniPath;
 #  define FC_SEARCH_PATH_SEPARATOR ';'
 #  define FC_DIR_SEPARATOR         '/'
 #  define FC_DIR_SEPARATOR_S       "/"
@@ -539,10 +540,6 @@ struct _FcConfig {
     FcExprPage  *expr_pool;	    /* pool of FcExpr's */
 
     FcChar8     *sysRoot;	    /* override the system root directory */
-
-#ifdef __OS2__
-    FcChar8     *os2UserIni;  /* OS/2 PM OS2.INI full file path */
-#endif
 };
 
 typedef struct _FcFileTime {

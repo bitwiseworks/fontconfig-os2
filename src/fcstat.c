@@ -44,6 +44,12 @@
 #endif
 #include <errno.h>
 
+#if defined(__OS2__)
+#define OS2EMX_PLAIN_CHAR
+#define INCL_PM
+#include <os2.h>
+#endif
+
 #ifdef _WIN32
 #ifdef __GNUC__
 typedef long long INT64;
@@ -317,6 +323,52 @@ FcStatChecksum (const FcChar8 *file, struct stat *statb)
 {
     if (FcStat (file, statb) == -1)
         return -1;
+
+#ifdef __OS2__
+    if (FcOs2IniPath && FcStrCmpIgnoreCase (file, FcOs2IniPath) == 0)
+    {
+        /* Special case: OS2.INI file, read PM_Fonts entreis and calc the cumulative checksum */
+        struct Adler32 ctx;
+        ULONG size;
+        char *buf;
+
+        Adler32Init (&ctx);
+
+        if (!PrfQueryProfileSize (HINI_USERPROFILE, "PM_Fonts", NULL, &size) ||
+            !(buf = malloc (size)))
+            return -1;
+
+        if (PrfQueryProfileString (HINI_USERPROFILE, "PM_Fonts", NULL, NULL, buf, size) > 0)
+        {
+            char *key = buf;
+            char font [CCHMAXPATH];
+            int len;
+            struct stat s;
+
+            while (*key)
+            {
+                if ((len = PrfQueryProfileString (HINI_USERPROFILE, "PM_Fonts", key, NULL, font, CCHMAXPATH)) > 0)
+                {
+                    Adler32Update (&ctx, font, len);
+
+                    if (FcStat ((FcChar8 *) font, &s) != -1)
+                    {
+                        Adler32Update (&ctx, (char *) &s.st_mode, sizeof (s.st_mode));
+                        Adler32Update (&ctx, (char *) &s.st_size, sizeof (s.st_size));
+                        Adler32Update (&ctx, (char *) &s.st_mtime, sizeof (s.st_mtime));
+                    }
+                }
+                key += strlen (key) + 1;
+            }
+        }
+
+        free (buf);
+
+        statb->st_mtime = Adler32Finish (&ctx);
+
+        return 0;
+    }
+#endif
 
 #ifndef _WIN32
     /* We have a workaround of the broken stat() in FcStat() for Win32.

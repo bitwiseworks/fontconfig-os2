@@ -349,7 +349,7 @@ main (int argc, char **argv)
 	
 #ifdef __OS2__
 	/* Special case: OS2.INI file, let it go as a dir */
-	if (FcFileIsDir (arg) || FcStrCmp (arg, config->os2UserIni) == 0)
+	if (FcFileIsDir (arg) || (FcOs2IniPath && FcStrCmpIgnoreCase (arg, FcOs2IniPath)) == 0)
 #else
 	if (FcFileIsDir (arg))
 #endif

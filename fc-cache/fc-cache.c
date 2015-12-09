@@ -182,7 +182,7 @@ scanDirs (FcStrList *list, FcConfig *config, FcBool force, FcBool really_force, 
 	{
 #ifdef __OS2__
 	    /* Special case: OS2.INI file, let it go */
-	    if (!config || FcStrCmp (dir, config->os2UserIni) != 0)
+	    if (!FcOs2IniPath || FcStrCmpIgnoreCase (dir, FcOs2IniPath) != 0)
 #endif
 	    {
 		fprintf (stderr, "\"%s\": not a directory, skipping\n", dir);
