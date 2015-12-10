@@ -111,6 +111,43 @@ typedef unsigned int fc_atomic_int_t;
 #define fc_atomic_ptr_cmpexch(P,O,N)	( ({__machine_rw_barrier ();}), atomic_cas_ptr ((P), (O), (N)) == (void *) (O) ? FcTrue : FcFalse)
 
 
+#elif !defined(FC_NO_MT) && defined(__GNUC__) && defined(__OS2__)
+
+extern inline int __my_sync_fetch_and_add (volatile int *ptr, int value);
+extern inline int __my_sync_fetch_and_add (volatile int *ptr, int value)
+{
+    asm volatile ("mfence; lock xaddl %%eax, %2;"
+                 : "=a" (value)
+                 : "a" (value), "m" (*ptr)
+                 : "memory");
+    return value;
+}
+
+extern inline void __my_sync_synchronize (void);
+extern inline void __my_sync_synchronize (void)
+{
+    asm volatile ("mfence" ::: "memory");
+}
+
+extern inline int __my_sync_bool_compare_and_swap (volatile void **ptr, void *oldval, void *newval);
+extern inline int __my_sync_bool_compare_and_swap (volatile void **ptr, void *oldval, void *newval)
+{
+    char success;
+    asm volatile ("mfence; lock cmpxchgl %3, %2;"
+                  "sete %1;"
+                 : "=a" (newval), "=qm" (success), "+m" (*ptr)
+                 : "r" (newval), "0" (oldval)
+                 : "memory");
+    return success != 0;
+}
+
+typedef int fc_atomic_int_t;
+#define fc_atomic_int_add(AI, V)	__my_sync_fetch_and_add (&(AI), (V))
+
+#define fc_atomic_ptr_get(P)		(void *) (__my_sync_synchronize (), *(P))
+#define fc_atomic_ptr_cmpexch(P,O,N)	__my_sync_bool_compare_and_swap ((volatile void **)(P), (void *)(O), (void *)(N))
+
+
 #elif !defined(FC_NO_MT)
 
 #define FC_ATOMIC_INT_NIL 1 /* Warn that fallback implementation is in use. */
