@@ -43,7 +43,7 @@ AM_CPPFLAGS = \
 	   $(WARN_CFLAGS)
 
 $(TOOL): $(TSRC) $(ALIAS_FILES)
-	$(AM_V_GEN) $(CC_FOR_BUILD) -o $(TOOL) $< $(AM_CPPFLAGS)
+	$(AM_V_GEN) $(CC_FOR_BUILD) -o $(TOOL) $< $(CFLAGS) $(AM_CPPFLAGS)
 
 $(TARG): $(TMPL) $(TSRC) $(DEPS)
 	$(AM_V_GEN) $(MAKE) $(TOOL) && \
