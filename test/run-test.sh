@@ -97,7 +97,7 @@ dotest "Subdir with an out-of-date cache file"
 prep
 mkdir $FONTDIR/a
 $FCCACHE $FONTDIR/a
-sleep 1
+sleep 2 # account for 2s timestamp resolution (MS-DOS, OS/2)
 cp $FONT1 $FONT2 $FONTDIR/a
 check
 
@@ -105,7 +105,7 @@ dotest "Dir with an out-of-date cache file"
 prep
 cp $FONT1 $FONTDIR
 $FCCACHE $FONTDIR
-sleep 1
+sleep 2 # account for 2s timestamp resolution (MS-DOS, OS/2)
 mkdir $FONTDIR/a
 cp $FONT2 $FONTDIR/a
 check

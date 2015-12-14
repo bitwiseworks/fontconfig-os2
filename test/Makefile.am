@@ -8,6 +8,12 @@ AM_TESTS_ENVIRONMENT= \
 	EXEEXT=${EXEEXT}; export EXEEXT; \
 	$(NULL)
 
+if OS_OS2
+AM_TESTS_ENVIRONMENT+= \
+	BEGINLIBPATH=${abs_top_builddir}/src/.libs; export BEGINLIBPATH; \
+	$(NULL)
+endif
+
 SH_LOG_COMPILER = sh
 
 TESTS=run-test.sh
