@@ -349,6 +349,10 @@ FcStatChecksum (const FcChar8 *file, struct stat *statb)
             {
                 if ((len = PrfQueryProfileString (HINI_USERPROFILE, "PM_Fonts", key, NULL, font, CCHMAXPATH)) > 0)
                 {
+                    /* PM_Fonts stores .OFM files for Type1 fonts while Freetype needs .PFB */
+                    if (len >= 5 && stricmp (&font [len - 5], ".OFM") == 0)
+                        strcpy (&font [len - 5], ".PFB");
+
                     Adler32Update (&ctx, font, len);
 
                     if (FcStat ((FcChar8 *) font, &s) != -1)

@@ -271,13 +271,20 @@ FcDirScanConfig (FcFontSet	*set,
         {
             char *key = buf;
             char font [CCHMAXPATH];
+            int len;
 
             while (*key)
             {
-                if (PrfQueryProfileString (HINI_USERPROFILE, "PM_Fonts", key, NULL, font, CCHMAXPATH) > 0)
+                if ((len = PrfQueryProfileString (HINI_USERPROFILE, "PM_Fonts", key, NULL, font, CCHMAXPATH)) > 0)
                 {
                     FcBool ok = FcFalse;
-                    FcChar8 *f = FcStrCanonFilename ((FcChar8 *)font);
+                    FcChar8 *f;
+
+                    /* PM_Fonts stores .OFM files for Type1 fonts while Freetype needs .PFB */
+                    if (len >= 5 && stricmp (&font [len - 5], ".OFM") == 0)
+                        strcpy (&font [len - 5], ".PFB");
+
+                    f = FcStrCanonFilename ((FcChar8 *)font);
                     if (f)
                     {
                         ok = FcStrSetAdd (files, f);
