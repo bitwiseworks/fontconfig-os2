@@ -1193,11 +1193,17 @@ FcDirCacheLock (const FcChar8 *dir,
 	    break;
 	}
     }
-    return fd;
+    goto bail0;
 bail:
     if (fd != -1)
+    {
 	close (fd);
-    return -1;
+	fd = -1;
+    }
+bail0:
+    if (cache_hashed)
+	FcStrFree (cache_hashed);
+    return fd;
 }
 
 void
