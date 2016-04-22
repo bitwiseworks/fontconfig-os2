@@ -37,6 +37,10 @@
 #if defined(_WIN32)
 #include <sys/locking.h>
 #endif
+#if defined(__OS2__)
+#include <share.h>
+#include <io.h>
+#endif
 
 #ifndef O_BINARY
 #define O_BINARY 0
@@ -1172,11 +1176,16 @@ FcDirCacheLock (const FcChar8 *dir,
 	    cache_hashed = FcStrBuildFilename (cache_dir, cache_base, NULL);
 	if (!cache_hashed)
 	    break;
+#if defined(__OS2__)
+	fd = sopen ((const char *)cache_hashed, O_RDWR, SH_DENYRW);
+#else
 	fd = FcOpen ((const char *)cache_hashed, O_RDWR);
+#endif
 	FcStrFree (cache_hashed);
 	/* No caches in that directory. simply retry with another one */
 	if (fd != -1)
 	{
+#if !defined(__OS2__)
 #if defined(_WIN32)
 	    if (_locking (fd, _LK_LOCK, 1) == -1)
 		goto bail;
@@ -1191,14 +1200,17 @@ FcDirCacheLock (const FcChar8 *dir,
 	    if (fcntl (fd, F_SETLKW, &fl) == -1)
 		goto bail;
 #endif
+#endif
 	    break;
 	}
     }
     return fd;
+#if !defined(__OS2__)
 bail:
     if (fd != -1)
 	close (fd);
     return -1;
+#endif
 }
 
 void
@@ -1206,6 +1218,7 @@ FcDirCacheUnlock (int fd)
 {
     if (fd != -1)
     {
+#if !defined(__OS2__)
 #if defined(_WIN32)
 	_locking (fd, _LK_UNLCK, 1);
 #else
@@ -1217,6 +1230,7 @@ FcDirCacheUnlock (int fd)
 	fl.l_len = 0;
 	fl.l_pid = getpid ();
 	fcntl (fd, F_SETLK, &fl);
+#endif
 #endif
 	close (fd);
     }
