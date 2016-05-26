@@ -545,17 +545,11 @@ FcCacheObjectDereference (void *object)
 void
 FcCacheFini (void)
 {
-#if !defined(__OS2__)
-    /*
-     * @todo These assertions sometimes abort Firefox at exit so disable it
-     * for the time being (there is ongoing cache improvement upstream).
-     */
     int		    i;
 
     for (i = 0; i < FC_CACHE_MAX_LEVEL; i++)
 	assert (fcCacheChains[i] == NULL);
     assert (fcCacheMaxLevel == 0);
-#endif
 
     free_lock ();
 }
