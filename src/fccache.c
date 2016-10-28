@@ -1231,7 +1231,23 @@ FcDirCacheClean (const FcChar8 *cache_dir, FcBool verbose)
     return ret;
 }
 
-int
+static void
+FcDirLockFree (FcDirLock *dirLock)
+{
+    if (dirLock)
+    {
+        if (dirLock->fd != -1)
+            close (dirLock->fd);
+        if (dirLock->name)
+        {
+            unlink ((char *)dirLock->name);
+            free (dirLock->name);
+        }
+        free (dirLock);
+    }
+}
+
+FcDirLock *
 FcDirCacheLock (const FcChar8 *dir,
 		FcConfig      *config)
 {
@@ -1240,12 +1256,21 @@ FcDirCacheLock (const FcChar8 *dir,
     FcStrList *list;
     FcChar8 *cache_dir;
     const FcChar8 *sysroot = FcConfigGetSysRoot (config);
-    int fd = -1;
+    FcDirLock *dirLock;
+
+    dirLock = malloc (sizeof(FcDirLock));
+    if (!dirLock)
+        return NULL;
+    dirLock->fd = -1;
+    dirLock->name = NULL;
 
     FcDirCacheBasename (dir, cache_base);
     list = FcStrListCreate (config->cacheDirs);
     if (!list)
-	return -1;
+    {
+	FcDirLockFree (dirLock);
+	return NULL;
+    }
 
     while ((cache_dir = FcStrListNext (list)))
     {
@@ -1256,18 +1281,37 @@ FcDirCacheLock (const FcChar8 *dir,
 	if (!cache_hashed)
 	    break;
 #if defined(__OS2__)
-	fd = sopen ((const char *)cache_hashed, O_RDWR, SH_DENYRW);
-#else
-	fd = FcOpen ((const char *)cache_hashed, O_RDWR);
-#endif
+	/*
+	 * If this is not the first iteration, we need to delete already allocated
+	 * memory, as else we leak
+	 */
+	if (dirLock->name)
+	    free (dirLock->name);
+	int cache_hashedfd = sopen ((const char *) cache_hashed, O_RDWR, SH_DENYRW);
+	if (cache_hashedfd == -1)
+	    break;
+	dirLock->name = malloc (strlen ((char *) cache_hashed) + 6 /* .lock + \0 */);
+	if (dirLock->name)
+	{
+	    strcpy ((char *) dirLock->name, (char *) cache_hashed);
+	    strcat ((char *) dirLock->name, ".lock");
+	}
 	FcStrFree (cache_hashed);
+	if (!dirLock->name)
+	    break;
+	dirLock->fd = sopen ((const char *) dirLock->name, O_CREAT|O_TRUNC|O_RDWR, SH_DENYRW);
+	close (cache_hashedfd);
+#else
+	dirLock->fd = FcOpen ((const char *)cache_hashed, O_RDWR);
+	FcStrFree (cache_hashed);
+#endif
 	/* No caches in that directory. simply retry with another one */
-	if (fd != -1)
+	if (dirLock->fd != -1)
 	{
 #if !defined(__OS2__)
 #if defined(_WIN32)
-	    if (_locking (fd, _LK_LOCK, 1) == -1)
-		goto bail;
+	    if (_locking (dirLock->fd, _LK_LOCK, 1) == -1)
+	        break;
 #else
 	    struct flock fl;
 
@@ -1276,32 +1320,27 @@ FcDirCacheLock (const FcChar8 *dir,
 	    fl.l_start = 0;
 	    fl.l_len = 0;
 	    fl.l_pid = getpid ();
-	    if (fcntl (fd, F_SETLKW, &fl) == -1)
-		goto bail;
+	    if (fcntl (dirLock->fd, F_SETLKW, &fl) == -1)
+	        break;
 #endif
 #endif
-	    break;
+	    FcStrListDone (list);
+	    return dirLock;
 	}
     }
     FcStrListDone (list);
-    return fd;
-#if !defined(__OS2__)
-bail:
-    FcStrListDone (list);
-    if (fd != -1)
-	close (fd);
-    return -1;
-#endif
+    FcDirLockFree(dirLock);
+    return NULL;
 }
 
 void
-FcDirCacheUnlock (int fd)
+FcDirCacheUnlock (FcDirLock *dirLock)
 {
-    if (fd != -1)
+    if (dirLock && dirLock->fd != -1)
     {
 #if !defined(__OS2__)
 #if defined(_WIN32)
-	_locking (fd, _LK_UNLCK, 1);
+	_locking (dirlock->fd, _LK_UNLCK, 1);
 #else
 	struct flock fl;
 
@@ -1310,11 +1349,11 @@ FcDirCacheUnlock (int fd)
 	fl.l_start = 0;
 	fl.l_len = 0;
 	fl.l_pid = getpid ();
-	fcntl (fd, F_SETLK, &fl);
+	fcntl (dirLock->fd, F_SETLK, &fl);
 #endif
 #endif
-	close (fd);
     }
+    FcDirLockFree (dirLock);
 }
 
 /*

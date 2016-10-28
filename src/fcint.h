@@ -577,6 +577,11 @@ struct _FcValuePromotionBuffer {
   } u;
 };
 
+typedef struct _FcDirLock {
+    int fd;
+    FcChar8 *name;
+} FcDirLock;
+
 /* fcblanks.c */
 
 /* fccache.c */
@@ -608,12 +613,12 @@ FcCacheFini (void);
 FcPrivate void
 FcDirCacheReference (FcCache *cache, int nref);
 
-FcPrivate int
+FcPrivate FcDirLock *
 FcDirCacheLock (const FcChar8 *dir,
 		FcConfig      *config);
 
 FcPrivate void
-FcDirCacheUnlock (int fd);
+FcDirCacheUnlock (FcDirLock *dirLock);
 
 /* fccfg.c */
 

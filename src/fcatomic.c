@@ -58,9 +58,6 @@
 #include <direct.h>
 #define mkdir(path,mode) _mkdir(path)
 #endif
-#ifdef __OS2__
-#include <urpo.h>
-#endif
 
 #define NEW_NAME	".NEW"
 #define LCK_NAME	".LCK"
@@ -200,15 +197,7 @@ FcAtomicReplaceOrig (FcAtomic *atomic)
 #if defined(_WIN32) || defined(__OS2__)
     unlink ((const char *) atomic->file);
 #endif
-#if defined(__OS2__)
-    /*
-     * rename in urpo doesn't expect EACCES (which it may get due FcDirCacheLock
-     * called before initiating the cache update procedure), so force it.
-     */
-    if (renameForce ((char *) atomic->new, (char *) atomic->file) < 0)
-#else
     if (rename ((char *) atomic->new, (char *) atomic->file) < 0)
-#endif
 	return FcFalse;
     return FcTrue;
 }

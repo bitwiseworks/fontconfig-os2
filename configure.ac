@@ -114,11 +114,6 @@ case "$host" in
 esac
 AM_CONDITIONAL(OS_OS2, test "$os_os2" = "yes")
 
-if test "$os_os2" = "yes"; then
-  # urpo is needed for renameForce.
-  AC_CHECK_LIB([urpo], [renameForce])
-fi
-
 AC_CHECK_DECL([__SUNPRO_C], [SUNCC="yes"], [SUNCC="no"])
 WARN_CFLAGS=""
 WARNING_CPP_DIRECTIVE="no"
