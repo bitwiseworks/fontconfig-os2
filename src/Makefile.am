@@ -43,7 +43,12 @@ else
 
 if OS_OS2
 
+VENDOR ?=community
+BUILD_INFO=\#\#1\#\# $(shell date +'%d %b %Y %H:%M:%S')     $(shell uname -n)
+BUILDLEVEL_INFO=@\#$(VENDOR):$(VERSION)\#@$(BUILD_INFO)::::0::
+
 short_name = -shortname fntcnf
+build_level = -buildlevel '$(BUILDLEVEL_INFO)'
 
 endif
 
@@ -169,7 +174,7 @@ libfontconfig_la_SOURCES = \
 lib_LTLIBRARIES = libfontconfig.la
 
 libfontconfig_la_LDFLAGS =			\
-	-version-info @LIBT_VERSION_INFO@ -no-undefined $(export_symbols) $(short_name)
+	-version-info @LIBT_VERSION_INFO@ -no-undefined $(export_symbols) $(short_name) $(build_level)
 
 libfontconfig_la_LIBADD = $(ICONV_LIBS) $(FREETYPE_LIBS) $(LIBXML2_LIBS) $(EXPAT_LIBS)
 
