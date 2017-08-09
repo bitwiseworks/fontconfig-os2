@@ -88,9 +88,16 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-TESTS = run-test.sh test-bz89617$(EXEEXT) test-bz96676$(EXEEXT)
-check_PROGRAMS = $(am__EXEEXT_1) test-bz89617$(EXEEXT) $(am__EXEEXT_2) \
-	test-bz96676$(EXEEXT)
+@FREETYPE_PCF_LONG_FAMILY_NAMES_FALSE@TESTS = run-test.sh \
+@FREETYPE_PCF_LONG_FAMILY_NAMES_FALSE@	test-bz89617$(EXEEXT) \
+@FREETYPE_PCF_LONG_FAMILY_NAMES_FALSE@	test-bz131804$(EXEEXT) \
+@FREETYPE_PCF_LONG_FAMILY_NAMES_FALSE@	test-bz96676$(EXEEXT)
+@FREETYPE_PCF_LONG_FAMILY_NAMES_TRUE@TESTS = run-test271.sh \
+@FREETYPE_PCF_LONG_FAMILY_NAMES_TRUE@	test-bz89617$(EXEEXT) \
+@FREETYPE_PCF_LONG_FAMILY_NAMES_TRUE@	test-bz131804$(EXEEXT) \
+@FREETYPE_PCF_LONG_FAMILY_NAMES_TRUE@	test-bz96676$(EXEEXT)
+check_PROGRAMS = $(am__EXEEXT_1) test-bz89617$(EXEEXT) \
+	test-bz131804$(EXEEXT) $(am__EXEEXT_2) test-bz96676$(EXEEXT)
 @HAVE_PTHREAD_TRUE@am__append_1 = test-pthread
 @OS_WIN32_FALSE@am__append_2 = test-migration
 subdir = test
@@ -112,13 +119,16 @@ CONFIG_CLEAN_VPATH_FILES =
 @HAVE_PTHREAD_TRUE@am__EXEEXT_1 = test-pthread$(EXEEXT)
 @OS_WIN32_FALSE@am__EXEEXT_2 = test-migration$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
-test_bz89617_SOURCES = test-bz89617.c
-test_bz89617_OBJECTS = test_bz89617-test-bz89617.$(OBJEXT)
-test_bz89617_DEPENDENCIES = $(top_builddir)/src/libfontconfig.la
+test_bz131804_SOURCES = test-bz131804.c
+test_bz131804_OBJECTS = test-bz131804.$(OBJEXT)
+test_bz131804_DEPENDENCIES = $(top_builddir)/src/libfontconfig.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+test_bz89617_SOURCES = test-bz89617.c
+test_bz89617_OBJECTS = test_bz89617-test-bz89617.$(OBJEXT)
+test_bz89617_DEPENDENCIES = $(top_builddir)/src/libfontconfig.la
 test_bz89617_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(test_bz89617_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
@@ -167,10 +177,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = test-bz89617.c test-bz96676.c test-migration.c \
-	test-pthread.c
-DIST_SOURCES = test-bz89617.c test-bz96676.c test-migration.c \
-	test-pthread.c
+SOURCES = test-bz131804.c test-bz89617.c test-bz96676.c \
+	test-migration.c test-pthread.c
+DIST_SOURCES = test-bz131804.c test-bz89617.c test-bz96676.c \
+	test-migration.c test-pthread.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -568,7 +578,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-check_SCRIPTS = run-test.sh
+@FREETYPE_PCF_LONG_FAMILY_NAMES_FALSE@check_SCRIPTS = run-test.sh
+@FREETYPE_PCF_LONG_FAMILY_NAMES_TRUE@check_SCRIPTS = run-test271.sh
 TEST_EXTENSIONS = \
 	.sh \
 	$(NULL)
@@ -579,17 +590,18 @@ AM_TESTS_ENVIRONMENT = \
 	$(NULL)
 
 SH_LOG_COMPILER = sh
-TESTDATA = 4x6.pcf 8x16.pcf out.expected fonts.conf.in
+TESTDATA = 4x6.pcf 8x16.pcf out.expected out271.expected fonts.conf.in
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_builddir)
 @HAVE_PTHREAD_TRUE@test_pthread_LDADD = $(top_builddir)/src/libfontconfig.la
 test_bz89617_CFLAGS = \
 	-DSRCDIR="\"$(abs_srcdir)\""
 
 test_bz89617_LDADD = $(top_builddir)/src/libfontconfig.la
+test_bz131804_LDADD = $(top_builddir)/src/libfontconfig.la
 noinst_PROGRAMS = $(check_PROGRAMS)
 @OS_WIN32_FALSE@test_migration_LDADD = $(top_builddir)/src/libfontconfig.la
 test_bz96676_LDADD = $(top_builddir)/src/libfontconfig.la
-EXTRA_DIST = $(check_SCRIPTS) $(TESTDATA)
+EXTRA_DIST = run-test.sh run-test271.sh $(TESTDATA)
 CLEANFILES = 
 all: all-am
 
@@ -643,6 +655,10 @@ clean-noinstPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
+test-bz131804$(EXEEXT): $(test_bz131804_OBJECTS) $(test_bz131804_DEPENDENCIES) $(EXTRA_test_bz131804_DEPENDENCIES) 
+	@rm -f test-bz131804$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_bz131804_OBJECTS) $(test_bz131804_LDADD) $(LIBS)
+
 test-bz89617$(EXEEXT): $(test_bz89617_OBJECTS) $(test_bz89617_DEPENDENCIES) $(EXTRA_test_bz89617_DEPENDENCIES) 
 	@rm -f test-bz89617$(EXEEXT)
 	$(AM_V_CCLD)$(test_bz89617_LINK) $(test_bz89617_OBJECTS) $(test_bz89617_LDADD) $(LIBS)
@@ -665,6 +681,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-bz131804.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-bz96676.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-migration.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test-pthread.Po@am__quote@
@@ -907,6 +924,13 @@ recheck: all $(check_PROGRAMS) $(check_SCRIPTS)
 test-bz89617.log: test-bz89617$(EXEEXT)
 	@p='test-bz89617$(EXEEXT)'; \
 	b='test-bz89617'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test-bz131804.log: test-bz131804$(EXEEXT)
+	@p='test-bz131804$(EXEEXT)'; \
+	b='test-bz131804'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

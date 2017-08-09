@@ -148,10 +148,6 @@ am__objects_1 =
 am_edit_sgml_OBJECTS = edit-sgml.$(OBJEXT) $(am__objects_1)
 edit_sgml_OBJECTS = $(am_edit_sgml_OBJECTS)
 edit_sgml_LDADD = $(LDADD)
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
-am__v_lt_1 = 
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -170,6 +166,10 @@ am__depfiles_maybe = depfiles
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
 LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
 	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
@@ -696,7 +696,7 @@ edit_sgml_SOURCES = \
 	edit-sgml.c	\
 	$(NULL)
 
-edit_sgml_CC = $(CC_FOR_BUILD)
+edit_sgml_LINK = $(CC_FOR_BUILD) -o $@
 #
 check_SCRIPTS = \
 	check-missing-doc	\
@@ -769,7 +769,7 @@ clean-noinstPROGRAMS:
 
 edit-sgml$(EXEEXT): $(edit_sgml_OBJECTS) $(edit_sgml_DEPENDENCIES) $(EXTRA_edit_sgml_DEPENDENCIES) 
 	@rm -f edit-sgml$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(edit_sgml_OBJECTS) $(edit_sgml_LDADD) $(LIBS)
+	$(AM_V_GEN)$(edit_sgml_LINK) $(edit_sgml_OBJECTS) $(edit_sgml_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -1317,6 +1317,9 @@ uninstall-man: uninstall-man3 uninstall-man5
 
 .PRECIOUS: Makefile
 
+$(edit_sgml_OBJECTS) : CC:=$(CC_FOR_BUILD)
+$(edit_sgml_OBJECTS) : CFLAGS:=$(CFLAGS_FOR_BUILD)
+$(edit_sgml_OBJECTS) : CPPFLAGS:=$(CPPFLAGS_FOR_BUILD)
 
 @USEDOCBOOK_TRUE@.fncs.sgml:
 @USEDOCBOOK_TRUE@	$(AM_V_GEN) $(RM) $@; \
