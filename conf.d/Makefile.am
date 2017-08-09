@@ -95,9 +95,9 @@ install-data-hook:
 	@(echo cd $(DESTDIR)$(configdir);			\
 	  cd $(DESTDIR)$(configdir);				\
 	  for i in $(CONF_LINKS); do				\
-	    echo $(RM) $$i";" ln -s $(templatedir)/$$i .;	\
+	    echo $(RM) $$i";" $(LN_S) $(templatedir)/$$i .;	\
 	    $(RM) $$i;						\
-	    ln -s $(templatedir)/$$i .;				\
+	    $(LN_S) $(templatedir)/$$i .;			\
 	  done)
 uninstall-local:
 	@(echo cd $(DESTDIR)$(configdir);			\
