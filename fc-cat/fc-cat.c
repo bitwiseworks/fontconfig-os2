@@ -346,7 +346,9 @@ main (int argc, char **argv)
 	int	    j;
 	FcChar8	    *cache_file = NULL;
 	struct stat file_stat;
-	
+
+	/* reset errno */
+	errno = 0;
 #ifdef __OS2__
 	/* Special case: OS2.INI file, let it go as a dir */
 	if (FcFileIsDir (arg) || (FcOs2IniPath && FcStrCmpIgnoreCase (arg, FcOs2IniPath)) == 0)
@@ -358,7 +360,10 @@ main (int argc, char **argv)
 	    cache = FcDirCacheLoadFile (arg, &file_stat);
 	if (!cache)
 	{
-	    perror ((char *) arg);
+	    if (errno != 0)
+		perror ((char *) arg);
+	    else
+		fprintf (stderr, "%s: Unable to load the cache: %s\n", argv[0], arg);
 	    ret++;
 	    continue;
 	}
