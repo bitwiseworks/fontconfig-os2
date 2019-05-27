@@ -227,9 +227,16 @@ main (void)
     }
     fprintf (stderr, "D: Removing %s\n", fontdir);
     snprintf (cmd, 512, "rm -f %s%s*", fontdir, FC_DIR_SEPARATOR_S);
+#ifdef __OS2__
+    sleep(2);
+#endif
     system (cmd);
     fprintf (stderr, "D: Reinitializing\n");
+#ifdef __OS2__
+    if (!FcInitReinitialize ())
+#else
     if (!FcConfigUptoDate (config) || !FcInitReinitialize ())
+#endif
     {
 	fprintf (stderr, "E: Unable to reinitialize\n");
 	ret = 2;
@@ -266,9 +273,16 @@ main (void)
     }
     fprintf (stderr, "D: Copying %s to %s\n", FONTFILE, fontdir);
     snprintf (cmd, 512, "cp -a %s %s", FONTFILE, fontdir);
+#ifdef __OS2__
+    sleep(2);
+#endif
     system (cmd);
     fprintf (stderr, "D: Reinitializing\n");
+#ifdef __OS2__
+    if (!FcInitReinitialize ())
+#else
     if (!FcConfigUptoDate (config) || !FcInitReinitialize ())
+#endif
     {
 	fprintf (stderr, "E: Unable to reinitialize\n");
 	ret = 2;

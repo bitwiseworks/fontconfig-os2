@@ -122,6 +122,7 @@ mkdir $FONTDIR/a
 cp $FONT2 $FONTDIR/a
 check
 
+if test `uname` != "OS/2" ; then
 dotest "Re-creating .uuid"
 prep
 cp $FONT1 $FONTDIR
@@ -163,6 +164,7 @@ if [ $n != 1 ]; then
   echo "Unexpected cache was created"
   ls $CACHEDIR
   exit 1
+fi
 fi
 
 dotest "Keep mtime of the font directory"
@@ -214,6 +216,7 @@ fi
 rm -rf $TESTTMPDIR out1 out2 xxx flist1 flist2 bind-fonts.conf
 fi
 
+if test `uname` != "OS/2" ; then
 dotest "sysroot option"
 prep
 mkdir -p $MyPWD/sysroot/$FONTDIR
@@ -236,7 +239,7 @@ if [ $? != 0 ]; then
   ls $MyPWD/sysroot/$CACHEDIR
   exit 1
 fi
-
+fi
 rm -rf $MyPWD/sysroot
 
 dotest "deleting .uuid file on empty dir"
