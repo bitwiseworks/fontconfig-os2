@@ -38,12 +38,11 @@
 #endif
 #if defined(_WIN32)
 #include <sys/locking.h>
-#elif !defined(__OS2__)
-#include <uuid/uuid.h>
-#endif
-#if defined(__OS2__)
+#elif defined(__OS2__)
 #include <share.h>
 #include <io.h>
+#else
+#include <uuid/uuid.h>
 #endif
 
 #ifndef O_BINARY
@@ -58,7 +57,7 @@ FcDirCacheCreateUUID (FcChar8  *dir,
     const FcChar8 *sysroot = FcConfigGetSysRoot (config);
     FcChar8 *target;
     FcBool ret = FcTrue;
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
     FcChar8 *uuidname;
 
     if (sysroot)
@@ -174,7 +173,7 @@ FcDirCacheDeleteUUID (const FcChar8  *dir,
     return ret;
 }
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
 static void
 FcDirCacheReadUUID (FcChar8  *dir,
 		    FcConfig *config)
@@ -302,7 +301,7 @@ FcDirCacheBasenameMD5 (const FcChar8 *dir, FcChar8 cache_base[CACHEBASE_LEN])
     return cache_base;
 }
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
 static FcChar8 *
 FcDirCacheBasenameUUID (const FcChar8 *dir, FcChar8 cache_base[CACHEBASE_LEN], FcConfig *config)
 {
@@ -336,7 +335,7 @@ FcDirCacheUnlink (const FcChar8 *dir, FcConfig *config)
     FcChar8	*cache_dir;
     const FcChar8 *sysroot = FcConfigGetSysRoot (config);
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
     if (!FcDirCacheBasenameUUID (dir, cache_base, config))
 #endif
 	FcDirCacheBasenameMD5 (dir, cache_base);
@@ -416,7 +415,7 @@ FcDirCacheProcess (FcConfig *config, const FcChar8 *dir,
     }
     FcStrFree (d);
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
     if (!FcDirCacheBasenameUUID (dir, cache_base, config))
 #endif
 	FcDirCacheBasenameMD5 (dir, cache_base);
@@ -1044,7 +1043,7 @@ FcDirCacheLoad (const FcChar8 *dir, FcConfig *config, FcChar8 **cache_file)
 {
     FcCache *cache = NULL;
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
     FcDirCacheReadUUID ((FcChar8 *) dir, config);
 #endif
     if (!FcDirCacheProcess (config, dir,
@@ -1350,7 +1349,7 @@ FcDirCacheWrite (FcCache *cache, FcConfig *config)
     if (!cache_dir)
 	return FcFalse;
 
-#ifndef _WIN32
+#if !defined( _WIN32) && !defined(__OS2__)
     if (!FcDirCacheBasenameUUID (dir, cache_base, config))
 #endif
 	FcDirCacheBasenameMD5 (dir, cache_base);
@@ -1572,7 +1571,7 @@ FcDirCacheLock (const FcChar8 *dir,
     dirLock->fd = -1;
     dirLock->name = NULL;
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
     if (!FcDirCacheBasenameUUID (dir, cache_base, config))
 #endif
 	FcDirCacheBasenameMD5 (dir, cache_base);

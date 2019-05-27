@@ -344,7 +344,7 @@ CFLAGS="$fontconfig_save_cflags"
 #
 # Check for uuid
 #
-if test "$os_win32" != "yes"; then
+if test "$os_win32" != "yes" -a "$os_os2" != "yes"; then
 	use_pkgconfig_for_uuid=yes
 	if test -n "${UUID_LIBS}"; then
 		save_UUID_LIBS=$UUID_LIBS

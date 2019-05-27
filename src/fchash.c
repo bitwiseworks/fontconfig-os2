@@ -20,7 +20,7 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 #include "fcint.h"
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
 #include <uuid/uuid.h>
 #endif
 
@@ -56,7 +56,7 @@ FcBool
 FcHashUuidCopy (const void  *src,
 		void       **dest)
 {
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
     *dest = malloc (sizeof (uuid_t));
     uuid_copy (*dest, src);
 #endif

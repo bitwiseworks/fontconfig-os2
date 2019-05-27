@@ -80,10 +80,12 @@ endif
 check_PROGRAMS += test-bz106618
 test_bz106618_LDADD = $(top_builddir)/src/libfontconfig.la
 
+if !OS_OS2
 check_PROGRAMS += test-hash
 test_hash_CFLAGS = -I$(top_builddir) -I$(top_builddir)/src $(UUID_CFLAGS)
 test_hash_LDADD = $(UUID_LIBS)
 TESTS += test-hash
+endif
 
 check_PROGRAMS += test-bz106632
 test_bz106632_CFLAGS =					\
