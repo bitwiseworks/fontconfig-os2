@@ -38,7 +38,7 @@
 #endif
 #if defined(_WIN32)
 #include <sys/locking.h>
-#else
+#elif !defined(__OS2__)
 #include <uuid/uuid.h>
 #endif
 #if defined(__OS2__)
@@ -1622,7 +1622,7 @@ FcDirCacheLock (const FcChar8 *dir,
 #if !defined(__OS2__)
 #if defined(_WIN32)
 	    if (_locking (dirLock->fd, _LK_LOCK, 1) == -1)
-	        break;
+		break;
 #else
 	    struct flock fl;
 
@@ -1632,7 +1632,7 @@ FcDirCacheLock (const FcChar8 *dir,
 	    fl.l_len = 0;
 	    fl.l_pid = getpid ();
 	    if (fcntl (dirLock->fd, F_SETLKW, &fl) == -1)
-	        break;
+		break;
 #endif
 #endif
 	    FcStrListDone (list);
@@ -1651,7 +1651,7 @@ FcDirCacheUnlock (FcDirLock *dirLock)
     {
 #if !defined(__OS2__)
 #if defined(_WIN32)
-	_locking (dirlock->fd, _LK_UNLCK, 1);
+	_locking (dirLock->fd, _LK_UNLCK, 1);
 #else
 	struct flock fl;
 

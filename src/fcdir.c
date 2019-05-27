@@ -363,7 +363,7 @@ FcDirCacheScan (const FcChar8 *dir, FcConfig *config)
     const FcChar8	*sysroot = FcConfigGetSysRoot (config);
     FcChar8		*d;
 #ifndef _WIN32
-    int			fd = -1;
+    FcDirLock		*dirLock = NULL;
 #endif
 
     if (sysroot)
@@ -386,7 +386,7 @@ FcDirCacheScan (const FcChar8 *dir, FcConfig *config)
 	goto bail1;
 
 #ifndef _WIN32
-    fd = FcDirCacheLock (dir, config);
+    dirLock = FcDirCacheLock (dir, config);
 #endif
     /*
      * Scan the dir
@@ -408,7 +408,7 @@ FcDirCacheScan (const FcChar8 *dir, FcConfig *config)
 
  bail2:
 #ifndef _WIN32
-    FcDirCacheUnlock (fd);
+    FcDirCacheUnlock (dirLock);
 #endif
     FcStrSetDestroy (dirs);
  bail1:
@@ -429,7 +429,7 @@ FcDirCacheRescan (const FcChar8 *dir, FcConfig *config)
     const FcChar8 *sysroot = FcConfigGetSysRoot (config);
     FcChar8 *d = NULL;
 #ifndef _WIN32
-    int fd = -1;
+    FcDirLock *dirLock = NULL;
 #endif
 
     cache = FcDirCacheLoad (dir, config, NULL);
@@ -447,7 +447,7 @@ FcDirCacheRescan (const FcChar8 *dir, FcConfig *config)
 	goto bail;
 
 #ifndef _WIN32
-    fd = FcDirCacheLock (dir, config);
+    dirLock = FcDirCacheLock (dir, config);
 #endif
     /*
      * Scan the dir
@@ -468,7 +468,7 @@ FcDirCacheRescan (const FcChar8 *dir, FcConfig *config)
 
 bail1:
 #ifndef _WIN32
-    FcDirCacheUnlock (fd);
+    FcDirCacheUnlock (dirLock);
 #endif
     FcStrSetDestroy (dirs);
 bail:

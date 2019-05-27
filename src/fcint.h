@@ -602,6 +602,11 @@ struct _FcValuePromotionBuffer {
   } u;
 };
 
+typedef struct _FcDirLock {
+    int fd;
+    FcChar8 *name;
+} FcDirLock;
+
 /* fccache.c */
 
 FcPrivate FcCache *
