@@ -192,7 +192,11 @@ FcDirScanConfig (FcFontSet	*set,
 		 FcBool		force, /* XXX unused */
 		 FcConfig	*config)
 {
+#ifdef __OS2__
+    DIR			*d = NULL;
+#else
     DIR			*d;
+#endif
     struct dirent	*e;
     FcStrSet		*files;
     FcChar8		*file;
