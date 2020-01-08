@@ -235,6 +235,21 @@ FcLangNormalize (const FcChar8 *lang)
 	modifier++;
 	mlen = strlen (modifier);
     }
+#ifdef __OS2__
+    /* we have the cases where _EURO is added to lang like it_IT_EURO,
+     * so handle that case as well and mark it as modifier
+    */
+    if (!modifier)
+    {
+	modifier = strcasestr((const char *) s, "_EURO");
+	if (modifier)
+	{
+	    *modifier = 0;
+ 	    modifier++;
+ 	    mlen = strlen (modifier);
+	}
+    }
+#endif
     encoding = strchr ((const char *) s, '.');
     if (encoding)
     {
